@@ -1,0 +1,14 @@
+{
+    "operation_mode": "safe_slow",
+    "platform_limits": {
+        "facebook": {
+            "daily_per_bot": 20
+        },
+        "youtube": {
+            "daily_per_bot": 15
+        },
+        "tiktok": {
+            "daily_per_bot": 25
+        }
+    }
+}

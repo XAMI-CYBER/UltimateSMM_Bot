@@ -1,0 +1,41 @@
+{
+    "app_name": "UltimateSMM Bot - Safe Version",
+    "version": "2.0.0",
+    "release_date": "2024-01-15",
+    "developer": "UltimateSMM Team",
+    "description": "Safe & Slow SMM Automation - Account Protection First",
+    "operation_mode": "safe_slow",
+    "key_features": [
+        "Account Protection First",
+        "6-12 Month Bot Lifespan Target", 
+        "Safe Daily Limits",
+        "Health Monitoring",
+        "Slow & Steady Growth",
+        "Automatic Safety Management"
+    ],
+    "safety_limits": {
+        "facebook": 20,
+        "youtube": 15,
+        "tiktok": 25,
+        "instagram": 20,
+        "twitter": 25
+    },
+    "supported_platforms": [
+        "facebook",
+        "youtube", 
+        "tiktok",
+        "instagram",
+        "twitter"
+    ],
+    "system_requirements": {
+        "python": "3.6+",
+        "storage": "50MB",
+        "memory": "256MB",
+        "termux": "compatible"
+    },
+    "update_channel": "stable",
+    "support_contact": {
+        "email": "support@ultimatesmm.com",
+        "telegram": "@ultimatesmm_support"
+    }
+}

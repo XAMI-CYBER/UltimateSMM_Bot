@@ -1,0 +1,37 @@
+{
+    "facebook": {
+        "enabled": true,
+        "api_limit": 100,
+        "rate_limit": 60,
+        "actions_per_hour": 20,
+        "auto_rotate_accounts": true
+    },
+    "instagram": {
+        "enabled": true,
+        "api_limit": 150,
+        "rate_limit": 60,
+        "actions_per_hour": 25,
+        "auto_rotate_accounts": true
+    },
+    "twitter": {
+        "enabled": true,
+        "api_limit": 200,
+        "rate_limit": 120,
+        "actions_per_hour": 30,
+        "auto_rotate_accounts": true
+    },
+    "youtube": {
+        "enabled": true,
+        "api_limit": 50,
+        "rate_limit": 30,
+        "actions_per_hour": 15,
+        "auto_rotate_accounts": true
+    },
+    "tiktok": {
+        "enabled": true,
+        "api_limit": 100,
+        "rate_limit": 60,
+        "actions_per_hour": 20,
+        "auto_rotate_accounts": true
+    }
+}

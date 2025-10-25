@@ -1,0 +1,20 @@
+{
+    "app_name": "UltimateSMM Bot",
+    "version": "1.0.0",
+    "auto_schedule": {
+        "active_hours": [
+            "06:00",
+            "23:00"
+        ],
+        "break_interval": 60,
+        "break_duration": 15,
+        "auto_restart": true
+    },
+    "system": {
+        "max_users": 100,
+        "max_bot_accounts": 500,
+        "update_interval": 300
+    },
+    "language": "bn",
+    "timezone": "Asia/Dhaka"
+}

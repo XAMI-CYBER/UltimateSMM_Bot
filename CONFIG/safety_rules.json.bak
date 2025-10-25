@@ -1,0 +1,28 @@
+{
+    "operation_limits": {
+        "max_posts_per_day": 50,
+        "min_delay_between_actions": 30,
+        "max_actions_per_hour": 20,
+        "max_concurrent_actions": 5,
+        "auto_rest_enabled": true
+    },
+    "safety_measures": {
+        "suspicious_activity_threshold": 10,
+        "auto_suspend_on_detection": true,
+        "rate_limiting": true,
+        "ip_rotation": false,
+        "user_agent_rotation": true
+    },
+    "account_protection": {
+        "max_failures_before_suspend": 3,
+        "auto_account_verification": true,
+        "backup_accounts_enabled": true,
+        "account_rotation_interval": 3600
+    },
+    "content_safety": {
+        "profanity_filter": true,
+        "spam_detection": true,
+        "duplicate_check": true,
+        "content_approval": false
+    }
+}

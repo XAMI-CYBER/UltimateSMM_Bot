@@ -1,0 +1,36 @@
+{
+    "operational_hours": {
+        "start_time": "06:00",
+        "end_time": "23:00",
+        "timezone": "Asia/Dhaka",
+        "enabled": true
+    },
+    "break_schedule": [
+        {
+            "after_minutes": 60,
+            "break_minutes": 15,
+            "enabled": true
+        },
+        {
+            "after_minutes": 120,
+            "break_minutes": 10,
+            "enabled": true
+        },
+        {
+            "after_minutes": 180,
+            "break_minutes": 20,
+            "enabled": true
+        }
+    ],
+    "maintenance": {
+        "daily_restart": "03:00",
+        "auto_backup": "02:00",
+        "log_cleanup": "04:00",
+        "health_report": "08:00"
+    },
+    "monitoring": {
+        "health_check_interval": 30,
+        "resource_check_interval": 60,
+        "backup_interval": 86400
+    }
+}

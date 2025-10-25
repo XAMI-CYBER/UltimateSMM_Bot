@@ -1,0 +1,202 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+UltimateSMM Bot - Main Launcher
+Automated SMM Panel with Smart Scheduling
+"""
+
+import os
+import sys
+import time
+import schedule
+import threading
+from datetime import datetime, timedelta
+
+# Add system path
+sys.path.append('CORE_SYSTEM')
+sys.path.append('CONTROL_PANEL')
+
+class UltimateSMMLauncher:
+    def __init__(self):
+        self.version = "1.0.0"
+        self.is_running = False
+        self.start_time = None
+        self.break_mode = False
+        
+    def load_config(self):
+        """Load system configuration"""
+        try:
+            import json
+            with open('CONFIG/global_settings.json', 'r') as f:
+                return json.load(f)
+        except Exception as e:
+            print(f"⚠️ Config load error: {e}")
+            return self.get_default_config()
+    
+    def get_default_config(self):
+        """Default configuration"""
+        return {
+            "auto_schedule": {
+                "active_hours": ["06:00", "23:00"],
+                "break_interval": 60,
+                "break_duration": 15,
+                "auto_restart": True
+            }
+        }
+    
+    def display_banner(self):
+        """Show professional banner"""
+        banner = """
+╔═══════════════════════════════════════════╗
+║           ULTIMATE SMM BOT v1.0           ║
+║         Automated Social Media Manager    ║
+║             24/7 Smart Scheduling         ║
+╚═══════════════════════════════════════════╝
+        """
+        print(banner)
+    
+    def check_system_health(self):
+        """Check system requirements"""
+        print("🔍 System Health Check...")
+        checks = {
+            "Python Version": sys.version.split()[0],
+            "Working Directory": os.getcwd(),
+            "Required Files": self.check_required_files()
+        }
+        
+        for check, status in checks.items():
+            print(f"   ✅ {check}: {status}")
+        
+        return True
+    
+    def check_required_files(self):
+        """Verify all required files exist"""
+        required_dirs = ['CONFIG', 'CORE_SYSTEM', 'CONTROL_PANEL', 'DATA', 'LOGS']
+        missing = [d for d in required_dirs if not os.path.exists(d)]
+        return "OK" if not missing else f"Missing: {missing}"
+    
+    def start_automation(self):
+        """Start the automated system"""
+        print("🚀 Starting UltimateSMM Automation...")
+        self.is_running = True
+        self.start_time = datetime.now()
+        
+        # Start main system in separate thread
+        main_thread = threading.Thread(target=self.run_main_system)
+        main_thread.daemon = True
+        main_thread.start()
+        
+        # Start scheduler
+        self.setup_scheduler()
+        
+        print("✅ System started successfully!")
+        print("⏰ Auto-schedule: 6:00 AM - 11:00 PM")
+        print("💤 Auto-breaks: Every 60 minutes for 15 minutes")
+        
+        # Keep main thread alive
+        try:
+            while self.is_running:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            self.stop_system()
+    
+    def run_main_system(self):
+        """Main system loop"""
+        from CORE_SYSTEM.scheduler import AutomationScheduler
+        
+        scheduler = AutomationScheduler()
+        
+        while self.is_running:
+            try:
+                if not self.break_mode:
+                    # Run scheduled tasks
+                    scheduler.run_pending()
+                    
+                    # Check for break time
+                    if self.should_take_break():
+                        self.start_break()
+                
+                time.sleep(60)  # Check every minute
+                
+            except Exception as e:
+                print(f"❌ System error: {e}")
+                time.sleep(300)  # Wait 5 minutes on error
+    
+    def should_take_break(self):
+        """Check if it's time for a break"""
+        if not self.start_time:
+            return False
+            
+        config = self.load_config()
+        break_interval = config['auto_schedule']['break_interval']
+        
+        current_time = datetime.now()
+        running_time = (current_time - self.start_time).total_seconds() / 60
+        
+        return running_time >= break_interval
+    
+    def start_break(self):
+        """Start break period"""
+        config = self.load_config()
+        break_duration = config['auto_schedule']['break_duration']
+        
+        print(f"💤 Taking break for {break_duration} minutes...")
+        self.break_mode = True
+        
+        # Simulate break
+        time.sleep(break_duration * 60)
+        
+        print("🔄 Break over! Resuming operations...")
+        self.break_mode = False
+        self.start_time = datetime.now()  # Reset timer
+    
+    def setup_scheduler(self):
+        """Setup automated schedules"""
+        config = self.load_config()
+        
+        # Daily restart at 3 AM
+        schedule.every().day.at("03:00").do(self.daily_restart)
+        
+        # Health check every 30 minutes
+        schedule.every(30).minutes.do(self.health_check)
+        
+        print("⏰ Scheduler setup completed")
+    
+    def daily_restart(self):
+        """Daily system restart"""
+        print("🔄 Performing daily restart...")
+        self.stop_system()
+        time.sleep(10)
+        self.start_automation()
+    
+    def health_check(self):
+        """System health monitoring"""
+        current_time = datetime.now().strftime("%H:%M:%S")
+        status = "💤 Break" if self.break_mode else "🟢 Running"
+        print(f"❤️ Health Check [{current_time}]: {status}")
+    
+    def stop_system(self):
+        """Graceful shutdown"""
+        print("🛑 Stopping UltimateSMM Bot...")
+        self.is_running = False
+        schedule.clear()
+        print("✅ System stopped successfully")
+
+def main():
+    """Main entry point"""
+    launcher = UltimateSMMLauncher()
+    launcher.display_banner()
+    
+    if not launcher.check_system_health():
+        print("❌ System health check failed!")
+        return
+    
+    try:
+        launcher.start_automation()
+    except KeyboardInterrupt:
+        print("\n👋 Shutting down...")
+    except Exception as e:
+        print(f"💥 Critical error: {e}")
+
+if __name__ == "__main__":
+    main()

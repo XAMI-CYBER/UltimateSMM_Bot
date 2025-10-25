@@ -1,0 +1,19 @@
+{
+    "app_name": "UltimateSMM Bot - Safe Version",
+    "version": "2.0.0",
+    "operation_mode": "safe_slow",
+    "safety_limits": {
+        "facebook": {
+            "daily_per_bot": 20,
+            "hourly_per_bot": 2
+        },
+        "youtube": {
+            "daily_per_bot": 15,
+            "hourly_per_bot": 2
+        },
+        "tiktok": {
+            "daily_per_bot": 25,
+            "hourly_per_bot": 3
+        }
+    }
+}

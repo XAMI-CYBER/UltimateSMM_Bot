@@ -1,0 +1,7 @@
+{
+    "operation_mode": "safe_slow",
+    "operational_hours": {
+        "start_time": "06:00",
+        "end_time": "22:00"
+    }
+}

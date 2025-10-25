@@ -1,0 +1,638 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+ULTIMATE SMM BOT - SLOW & SAFE VERSION
+Account Protection First - Slow Growth Strategy
+"""
+
+import os
+import sqlite3
+import time
+import random
+from datetime import datetime, timedelta
+
+class SafeSMMBot:
+    def __init__(self):
+        self.db_file = "safe_smm.db"
+        self.setup_database()
+        
+        # EXTREMELY SAFE LIMITS - Account Protection First
+        self.safe_limits = {
+            'facebook': {
+                'daily_per_bot': 20,      # Very safe - 20 actions/day
+                'hourly_per_bot': 2,      # Only 2 actions/hour
+                'delay_between_actions': '2-5 minutes'  # Long delays
+            },
+            'youtube': {
+                'daily_per_bot': 15,      # Very safe - 15 actions/day  
+                'hourly_per_bot': 2,      # Only 2 actions/hour
+                'delay_between_actions': '3-6 minutes'  # Long delays
+            },
+            'tiktok': {
+                'daily_per_bot': 25,      # Very safe - 25 actions/day
+                'hourly_per_bot': 3,      # Only 3 actions/hour  
+                'delay_between_actions': '2-4 minutes'  # Long delays
+            }
+        }
+        
+        # Slow growth service packages
+        self.service_packages = {
+            'starter': {
+                'name': 'STARTER PACKAGE',
+                'services': 50,           # Small package
+                'price': 3,
+                'description': '50 safe services (20 FB, 15 YT, 15 TT)'
+            },
+            'basic': {
+                'name': 'BASIC PACKAGE', 
+                'services': 100,          # Medium package
+                'price': 6,
+                'description': '100 safe services (40 FB, 30 YT, 30 TT)'
+            },
+            'premium': {
+                'name': 'PREMIUM PACKAGE',
+                'services': 200,          # Large package (but still safe)
+                'price': 12,
+                'description': '200 safe services (80 FB, 60 YT, 60 TT)'
+            }
+        }
+
+    def print_header(self, text):
+        print("\n" + "="*70)
+        print(f"🎯 {text}")
+        print("="*70)
+
+    def print_section(self, text):
+        print(f"\n🔸 {text}")
+        print("-" * 50)
+
+    def print_success(self, text):
+        print(f"✅ {text}")
+
+    def print_error(self, text):
+        print(f"❌ {text}")
+
+    def print_warning(self, text):
+        print(f"⚠️ {text}")
+
+    def print_info(self, text):
+        print(f"📢 {text}")
+
+    def setup_database(self):
+        conn = sqlite3.connect(self.db_file)
+        cursor = conn.cursor()
+        
+        # Bot accounts with safety tracking
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS bot_accounts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                platform TEXT NOT NULL,
+                username TEXT NOT NULL,
+                password TEXT NOT NULL,
+                email TEXT,
+                status TEXT DEFAULT 'active',
+                daily_used INTEGER DEFAULT 0,
+                total_used INTEGER DEFAULT 0,
+                success_rate REAL DEFAULT 100.0,
+                created_date TEXT NOT NULL,
+                last_used TEXT,
+                health_score INTEGER DEFAULT 100
+            )
+        ''')
+        
+        # Clients table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS clients (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT UNIQUE NOT NULL,
+                platform TEXT NOT NULL,
+                profile_url TEXT NOT NULL,
+                package_type TEXT NOT NULL,
+                total_services INTEGER DEFAULT 0,
+                completed_services INTEGER DEFAULT 0,
+                join_date TEXT NOT NULL,
+                status TEXT DEFAULT 'active'
+            )
+        ''')
+        
+        # Services with safety features
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS services (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                client_id INTEGER,
+                package_type TEXT NOT NULL,
+                target_url TEXT NOT NULL,
+                platform TEXT NOT NULL,
+                service_type TEXT NOT NULL,
+                quantity INTEGER NOT NULL,
+                completed INTEGER DEFAULT 0,
+                status TEXT DEFAULT 'pending',
+                priority TEXT DEFAULT 'normal',
+                created_date TEXT NOT NULL,
+                completed_date TEXT,
+                FOREIGN KEY (client_id) REFERENCES clients (id)
+            )
+        ''')
+        
+        # Safety logs
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS safety_logs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                bot_id INTEGER,
+                action_type TEXT NOT NULL,
+                result TEXT NOT NULL,
+                details TEXT,
+                timestamp TEXT NOT NULL
+            )
+        ''')
+        
+        conn.commit()
+        conn.close()
+        self.print_success("SAFE DATABASE CREATED - ACCOUNT PROTECTION ENABLED")
+
+    def get_db_connection(self):
+        conn = sqlite3.connect(self.db_file)
+        conn.row_factory = sqlite3.Row
+        return conn
+
+    def calculate_safe_capacity(self):
+        """Calculate safe daily capacity"""
+        conn = self.get_db_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute('SELECT platform, COUNT(*) as count FROM bot_accounts WHERE status="active" GROUP BY platform')
+        bot_stats = cursor.fetchall()
+        
+        safe_capacity = 0
+        for stat in bot_stats:
+            platform = stat['platform']
+            count = stat['count']
+            safe_capacity += count * self.safe_limits[platform]['daily_per_bot']
+        
+        conn.close()
+        return safe_capacity
+
+    def show_safety_dashboard(self):
+        conn = self.get_db_connection()
+        cursor = conn.cursor()
+        
+        # Bot statistics
+        cursor.execute('SELECT platform, COUNT(*) as count FROM bot_accounts WHERE status="active" GROUP BY platform')
+        bot_stats = cursor.fetchall()
+        
+        # Account health
+        cursor.execute('SELECT AVG(health_score) as avg_health FROM bot_accounts WHERE status="active"')
+        avg_health = cursor.fetchone()['avg_health'] or 100
+        
+        # Today's usage
+        today = datetime.now().strftime('%Y-%m-%d')
+        cursor.execute('SELECT SUM(daily_used) as total_used FROM bot_accounts')
+        total_used = cursor.fetchone()['total_used'] or 0
+        
+        safe_capacity = self.calculate_safe_capacity()
+        usage_percentage = (total_used / safe_capacity * 100) if safe_capacity > 0 else 0
+        
+        conn.close()
+        
+        self.print_section("SAFETY DASHBOARD - SLOW & STEADY")
+        print(f"   🛡️  ACCOUNT HEALTH SCORE: {avg_health:.1f}/100")
+        print(f"   📊 SAFE DAILY CAPACITY: {safe_capacity} services")
+        print(f"   🔄 TODAY'S USAGE: {total_used}/{safe_capacity} ({usage_percentage:.1f}%)")
+        
+        # Safety status
+        if usage_percentage < 50:
+            status = "🟢 VERY SAFE"
+        elif usage_percentage < 75:
+            status = "🟡 MODERATE"  
+        else:
+            status = "🔴 SLOW DOWN"
+        
+        print(f"   📈 SAFETY STATUS: {status}")
+        
+        print(f"\n   🤖 BOT ARMY (SAFE MODE):")
+        for stat in bot_stats:
+            platform = stat['platform'].upper()
+            count = stat['count']
+            daily_limit = self.safe_limits[stat['platform']]['daily_per_bot']
+            print(f"      {platform}: {count} bots → {daily_limit} services/day")
+        
+        return {
+            'avg_health': avg_health,
+            'safe_capacity': safe_capacity,
+            'today_used': total_used,
+            'usage_percentage': usage_percentage
+        }
+
+    def get_available_bot(self, platform):
+        """Get available bot with safety checks"""
+        conn = self.get_db_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            SELECT * FROM bot_accounts 
+            WHERE platform = ? AND status = 'active' AND daily_used < ? 
+            AND health_score > 70
+            ORDER BY daily_used ASC, health_score DESC 
+            LIMIT 1
+        ''', (platform, self.safe_limits[platform]['daily_per_bot']))
+        
+        bot = cursor.fetchone()
+        conn.close()
+        
+        return bot
+
+    def update_bot_health(self, bot_id, success):
+        """Update bot health score based on success"""
+        conn = self.get_db_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute('SELECT health_score FROM bot_accounts WHERE id = ?', (bot_id,))
+        current_health = cursor.fetchone()['health_score']
+        
+        if success:
+            new_health = min(100, current_health + 1)  # Slow improvement
+        else:
+            new_health = max(50, current_health - 5)   # Big penalty for failures
+        
+        cursor.execute('UPDATE bot_accounts SET health_score = ? WHERE id = ?', (new_health, bot_id))
+        conn.commit()
+        conn.close()
+        
+        return new_health
+
+    def add_bot_account(self, platform, username, password, email=""):
+        conn = self.get_db_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute(
+                'INSERT INTO bot_accounts (platform, username, password, email, created_date, health_score) VALUES (?, ?, ?, ?, ?, ?)',
+                (platform, username, password, email, datetime.now().isoformat(), 100)  # Start with 100 health
+            )
+            conn.commit()
+            self.print_success(f"SAFE BOT ADDED: {platform.upper()} - {username}")
+            self.print_info(f"DAILY LIMIT: {self.safe_limits[platform]['daily_per_bot']} services")
+            return True
+        except sqlite3.IntegrityError:
+            self.print_error(f"BOT EXISTS: {username}")
+            return False
+        finally:
+            conn.close()
+
+    def simulate_safe_services(self):
+        """Simulate services with safety features"""
+        self.print_section("SAFE SERVICE SIMULATION - SLOW & STEADY")
+        
+        conn = self.get_db_connection()
+        cursor = conn.cursor()
+        
+        # Get pending services (limit to 5 for safety)
+        cursor.execute('''
+            SELECT s.*, c.username, c.platform 
+            FROM services s 
+            JOIN clients c ON s.client_id = c.id 
+            WHERE s.status = 'pending' 
+            ORDER BY s.priority DESC, s.created_date ASC
+            LIMIT 5
+        ''')
+        pending_services = cursor.fetchall()
+        
+        if not pending_services:
+            self.print_info("NO PENDING SERVICES - SAFE MODE")
+            return
+        
+        completed_count = 0
+        
+        for service in pending_services:
+            # Safety check - get available bot
+            available_bot = self.get_available_bot(service['platform'])
+            
+            if not available_bot:
+                self.print_warning(f"NO SAFE BOT AVAILABLE for {service['username']} - SKIPPING")
+                continue
+            
+            # Simulate safe service completion (small batches)
+            max_batch = min(3, service['quantity'] - service['completed'])  # Max 3 at once
+            completed = random.randint(1, max_batch)
+            new_completed = service['completed'] + completed
+            
+            # Update bot usage
+            cursor.execute(
+                'UPDATE bot_accounts SET daily_used = daily_used + ?, last_used = ? WHERE id = ?',
+                (completed, datetime.now().isoformat(), available_bot['id'])
+            )
+            
+            # Update service
+            cursor.execute(
+                'UPDATE services SET completed = ?, status = ? WHERE id = ?',
+                (new_completed, 'completed' if new_completed >= service['quantity'] else 'processing', service['id'])
+            )
+            
+            # Simulate success/failure with high success rate
+            success = random.random() < 0.95  # 95% success rate for safety
+            new_health = self.update_bot_health(available_bot['id'], success)
+            
+            # Log safety action
+            cursor.execute(
+                'INSERT INTO safety_logs (bot_id, action_type, result, details, timestamp) VALUES (?, ?, ?, ?, ?)',
+                (available_bot['id'], 'service', 'success' if success else 'failure', 
+                 f'Completed {completed} for {service["username"]}', datetime.now().isoformat())
+            )
+            
+            completed_count += completed
+            
+            status_icon = "✅" if success else "⚠️"
+            self.print_success(f"{status_icon} {service['username']} → {completed} services (Health: {new_health})")
+            
+            # Simulate safe delay between actions
+            delay = random.uniform(2.0, 5.0)  # 2-5 minute delays
+            time.sleep(delay)
+        
+        conn.commit()
+        conn.close()
+        
+        if completed_count > 0:
+            self.print_success(f"SAFE SERVICES COMPLETED: {completed_count} (With Safety Delays)")
+        else:
+            self.print_info("NO SERVICES COMPLETED - SAFETY LIMITS ACTIVE")
+
+    def add_client_safely(self, username, platform, profile_url, package_type):
+        """Add client with safety checks"""
+        safe_capacity = self.calculate_safe_capacity()
+        current_usage = self.get_current_usage()
+        
+        available_capacity = safe_capacity - current_usage
+        package_services = self.service_packages[package_type]['services']
+        
+        if package_services > available_capacity:
+            self.print_error(f"INSUFFICIENT SAFE CAPACITY: Need {package_services}, Available {available_capacity}")
+            self.print_info("Please add more bots or wait for tomorrow")
+            return False
+        
+        conn = self.get_db_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute(
+                'INSERT INTO clients (username, platform, profile_url, package_type, join_date) VALUES (?, ?, ?, ?, ?)',
+                (username, platform, profile_url, package_type, datetime.now().isoformat())
+            )
+            
+            # Create service order with safe priority
+            client_id = cursor.lastrowid
+            package = self.service_packages[package_type]
+            
+            cursor.execute(
+                'INSERT INTO services (client_id, package_type, target_url, platform, service_type, quantity, priority, created_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+                (client_id, package_type, profile_url, platform, 'safe_engagement', package['services'], 'normal', datetime.now().isoformat())
+            )
+            conn.commit()
+            
+            self.print_success(f"SAFE CLIENT ADDED: {username}")
+            self.print_info(f"PACKAGE: {package['name']} - ${package['price']}")
+            self.print_info(f"ESTIMATED COMPLETION: 2-3 days (Safe Mode)")
+            return True
+        except sqlite3.IntegrityError:
+            self.print_error(f"CLIENT EXISTS: {username}")
+            return False
+        finally:
+            conn.close()
+
+    def get_current_usage(self):
+        """Get today's current usage"""
+        conn = self.get_db_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute('SELECT SUM(daily_used) as total_used FROM bot_accounts')
+        total_used = cursor.fetchone()['total_used'] or 0
+        
+        conn.close()
+        return total_used
+
+    def show_safe_limits(self):
+        self.print_section("SAFETY LIMITS - ACCOUNT PROTECTION")
+        for platform, limits in self.safe_limits.items():
+            print(f"   {platform.upper():12}")
+            print(f"      📊 Daily/Bot: {limits['daily_per_bot']:2} services")
+            print(f"      ⏰ Hourly/Bot: {limits['hourly_per_bot']:2} services")  
+            print(f"      🕒 Delays: {limits['delay_between_actions']}")
+            print()
+
+    def run_safe_operations(self):
+        self.print_header("ULTIMATE SMM BOT - SAFE & STEADY MODE")
+        self.print_success("ACCOUNT PROTECTION ENABLED - SLOW GROWTH STRATEGY")
+        self.print_info("BOT LIFESPAN: 6-12 MONTHS TARGET")
+        
+        safe_capacity = self.calculate_safe_capacity()
+        self.print_info(f"SAFE DAILY CAPACITY: {safe_capacity} SERVICES")
+        
+        while True:
+            self.print_header("SAFE BUSINESS DASHBOARD")
+            safety_stats = self.show_safety_dashboard()
+            
+            print("\n   1. 🤖 ADD SAFE BOTS (Slow Growth)")
+            print("   2. 👥 ADD CLIENTS (Capacity Check)")
+            print("   3. 🚀 RUN SAFE SERVICES") 
+            print("   4. 📊 BOT HEALTH REPORT")
+            print("   5. 🛡️ SAFETY SETTINGS")
+            print("   6. 💰 BUSINESS OVERVIEW")
+            print("   7. 🚪 EXIT")
+            print("-" * 50)
+            
+            choice = input("SELECT OPTION (1-7): ").strip()
+            
+            if choice == "1":
+                self.safe_bot_management()
+            elif choice == "2":
+                self.safe_client_management()
+            elif choice == "3":
+                self.simulate_safe_services()
+            elif choice == "4":
+                self.show_bot_health_report()
+            elif choice == "5":
+                self.show_safe_limits()
+            elif choice == "6":
+                self.show_business_overview()
+            elif choice == "7":
+                self.print_success("SAFE OPERATIONS COMPLETED - ACCOUNTS PROTECTED!")
+                break
+            else:
+                self.print_error("INVALID SELECTION")
+
+    def safe_bot_management(self):
+        self.print_header("SAFE BOT MANAGEMENT - SLOW GROWTH")
+        self.print_info("Add bots gradually - Quality over Quantity")
+        
+        print("   1. ➕ ADD FACEBOOK BOT (20/day limit)")
+        print("   2. ➕ ADD YOUTUBE BOT (15/day limit)")  
+        print("   3. ➕ ADD TIKTOK BOT (25/day limit)")
+        print("   4. 📋 VIEW BOT HEALTH")
+        print("   5. ↩️ BACK")
+        
+        choice = input("SELECT (1-5): ").strip()
+        
+        if choice == "1":
+            self.add_single_bot('facebook')
+        elif choice == "2":
+            self.add_single_bot('youtube')
+        elif choice == "3":
+            self.add_single_bot('tiktok')
+        elif choice == "4":
+            self.show_bot_health_report()
+        elif choice == "5":
+            return
+        else:
+            self.print_error("INVALID SELECTION")
+
+    def add_single_bot(self, platform):
+        print(f"\n--- ADD {platform.upper()} BOT (SAFE MODE) ---")
+        username = input("BOT USERNAME: ").strip()
+        password = input("BOT PASSWORD: ").strip()
+        email = input("EMAIL (optional): ").strip()
+        
+        if username and password:
+            self.add_bot_account(platform, username, password, email)
+            self.print_info(f"SAFE LIMIT: {self.safe_limits[platform]['daily_per_bot']} services/day")
+        else:
+            self.print_error("USERNAME & PASSWORD REQUIRED")
+
+    def safe_client_management(self):
+        self.print_header("SAFE CLIENT MANAGEMENT")
+        
+        safe_capacity = self.calculate_safe_capacity()
+        current_usage = self.get_current_usage()
+        available = safe_capacity - current_usage
+        
+        print(f"   📊 AVAILABLE CAPACITY: {available}/{safe_capacity} services")
+        
+        if available < 50:
+            self.print_warning("LOW CAPACITY - Add more bots or wait for tomorrow")
+        
+        print("\n   1. ➕ ADD NEW CLIENT (Capacity Check)")
+        print("   2. 📋 VIEW CLIENTS")
+        print("   3. ↩️ BACK")
+        
+        choice = input("SELECT (1-3): ").strip()
+        
+        if choice == "1":
+            self.add_new_client_safe()
+        elif choice == "2":
+            self.show_clients()
+        elif choice == "3":
+            return
+        else:
+            self.print_error("INVALID SELECTION")
+
+    def add_new_client_safe(self):
+        print("\n--- ADD CLIENT (SAFE MODE) ---")
+        username = input("CLIENT USERNAME: ").strip()
+        profile_url = input("PROFILE URL: ").strip()
+        
+        print("\nSELECT PLATFORM:")
+        print("   1. Facebook (20/day limit)")
+        print("   2. YouTube (15/day limit)") 
+        print("   3. TikTok (25/day limit)")
+        platform_choice = input("SELECT (1-3): ").strip()
+        
+        platforms = {'1': 'facebook', '2': 'youtube', '3': 'tiktok'}
+        platform = platforms.get(platform_choice)
+        
+        if not platform:
+            self.print_error("INVALID PLATFORM")
+            return
+        
+        print("\nSELECT SAFE PACKAGE:")
+        print("   1. STARTER - $3 (50 services - 2-3 days completion)")
+        print("   2. BASIC - $6 (100 services - 3-5 days completion)")  
+        print("   3. PREMIUM - $12 (200 services - 5-7 days completion)")
+        package_choice = input("SELECT (1-3): ").strip()
+        
+        packages = {'1': 'starter', '2': 'basic', '3': 'premium'}
+        package_type = packages.get(package_choice)
+        
+        if username and profile_url and platform and package_type:
+            if not profile_url.startswith(('http://', 'https://')):
+                profile_url = 'https://' + profile_url
+            self.add_client_safely(username, platform, profile_url, package_type)
+        else:
+            self.print_error("ALL FIELDS REQUIRED")
+
+    def show_bot_health_report(self):
+        conn = self.get_db_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            SELECT platform, 
+                   COUNT(*) as total,
+                   AVG(health_score) as avg_health,
+                   SUM(daily_used) as total_used
+            FROM bot_accounts 
+            WHERE status = 'active'
+            GROUP BY platform
+        ''')
+        health_stats = cursor.fetchall()
+        
+        self.print_section("BOT HEALTH REPORT")
+        
+        for stat in health_stats:
+            platform = stat['platform'].upper()
+            total = stat['total']
+            avg_health = stat['avg_health']
+            total_used = stat['total_used']
+            
+            health_status = "🟢 EXCELLENT" if avg_health > 90 else "🟡 GOOD" if avg_health > 75 else "🔴 NEEDS ATTENTION"
+            
+            print(f"   {platform:12}")
+            print(f"      🤖 Bots: {total:2} | Health: {avg_health:.1f}/100")
+            print(f"      📊 Used Today: {total_used:3} | Status: {health_status}")
+            print()
+        
+        conn.close()
+
+    def show_clients(self):
+        conn = self.get_db_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            SELECT c.*, s.completed as completed_services 
+            FROM clients c 
+            LEFT JOIN services s ON c.id = s.client_id 
+            ORDER BY c.join_date DESC
+        ''')
+        clients = cursor.fetchall()
+        
+        self.print_section("CLIENT LIST (SAFE MODE)")
+        
+        if not clients:
+            self.print_error("NO CLIENTS FOUND")
+        else:
+            for client in clients:
+                package = self.service_packages[client['package_type']]
+                completion = (client['completed_services'] or 0) / package['services'] * 100
+                
+                status = "🟢 COMPLETED" if completion >= 100 else "🟡 IN PROGRESS" if completion > 0 else "⚪ PENDING"
+                
+                print(f"   👤 {client['username']:15}")
+                print(f"      📦 {package['name']:15} ${package['price']:5}")
+                print(f"      📊 Progress: {completion:6.1f}% | Status: {status}")
+                print(f"      🌐 {client['platform']:10} {client['profile_url'][:30]}...")
+                print()
+        
+        conn.close()
+
+    def show_business_overview(self):
+        self.print_section("BUSINESS OVERVIEW - SLOW & STEADY")
+        
+        safe_capacity = self.calculate_safe_capacity()
+        current_usage = self.get_current_usage()
+        
+        print(f"   📊 DAILY CAPACITY: {safe_capacity} services")
+        print(f"   🔄 USED TODAY: {current_usage} services")
+        print(f"   💰 POTENTIAL DAILY REVENUE: ${safe_capacity * 0.10:.2f}")
+        print(f"   🎯 BOT LIFESPAN TARGET: 6-12 months")
+        print(f"   🛡️  ACCOUNT PROTECTION: MAXIMUM")
+        print(f"   ⏰ GROWTH STRATEGY: SLOW & STEADY")
+
+if __name__ == "__main__":
+    bot = SafeSMMBot()
+    bot.run_safe_operations()
